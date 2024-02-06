@@ -21,20 +21,20 @@ async function insertJoke(joke) {
   await collection.insertOne({joke})
 }
 
-async function getAllJokes() {
-  const database = client.db('jokeDatabase')
-  const collection = database.collection('jokes')
-  return await collection.find({}).toArray()
-}
-
 connectToMongo();
 
 app.use(express.json())
 
 app.get('/jokes', async(req, res) => {
-  const jokes = await getAllJokes()
-
-  res.json({jokes})
+  try {
+    const database = client.db('jokeDatabase')
+    const collection = database.collection('jokes')
+    const jokes = await collection.find({}).toArray()
+    res.json({jokes})
+  } catch (err) {
+    console.error('Error retrieving jokes:', err);
+    res.status(500).json({error: 'Internal Server Error'})
+  }
 });
 
 app.get('/jokes/:id', async (req, res) => {
